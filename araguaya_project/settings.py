@@ -88,30 +88,14 @@ if database_url:
         'default': dj_database_url.config(
             default=database_url,
             conn_max_age=600,
-            conn_health_checks=True,
-            ssl_require=True,
-            options={
-                'charset': 'utf8',
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                'options': {
-                    'charset': 'utf8mb4',
-                }
-            }
+            ssl_require=True
         )
     }
     
     # FORÇAR CODIFICAÇÃO UTF-8 PARA POSTGRESQL
     DATABASES['default']['OPTIONS'] = {
-        'charset': 'utf8',
+        'client_encoding': 'UTF8',
     }
-    
-    # Adicionar configurações específicas para PostgreSQL
-    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
-        DATABASES['default']['OPTIONS'].update({
-            'client_encoding': 'UTF8',
-            'default_transaction_isolation': 'read committed',
-            'timezone': 'UTC',
-        })
 else:
     # Para desenvolvimento local (SQLite)
     DATABASES = {
