@@ -27,6 +27,7 @@ if MANUAL_HOSTS := os.getenv('ALLOWED_HOSTS'):
 # Permite acesso local se o DEBUG estiver ativado
 if DEBUG:
     ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
+
 # Para produção, o Railway injeta o CSRF_TRUSTED_ORIGINS, mas podemos adicionar manualmente se necessário
 # Lógica robusta para CSRF_TRUSTED_ORIGINS
 csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS')
@@ -78,14 +79,47 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'araguaya_project.wsgi.application'
 
-# Configuração de Banco de Dados flexível para Railway (PostgreSQL) ou local (SQLite)
-DATABASES = {
-    'default': dj_database_url.config(
-        conn_max_age=600,
-        ssl_require=os.getenv('DATABASE_URL', '').startswith('postgres://'), # Ativa SSL para PostgreSQL
-        default=f'sqlite:///{BASE_DIR / "db.sqlite3"}' # Fallback para SQLite local
-    )
-}
+# Configuração de Banco de Dados CORRIGIDA para Railway (PostgreSQL) ou local (SQLite)
+database_url = os.getenv('DATABASE_URL', '')
+
+if database_url:
+    # Para produção (Railway com PostgreSQL)
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True,
+            options={
+                'charset': 'utf8',
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'options': {
+                    'charset': 'utf8mb4',
+                }
+            }
+        )
+    }
+    
+    # FORÇAR CODIFICAÇÃO UTF-8 PARA POSTGRESQL
+    DATABASES['default']['OPTIONS'] = {
+        'charset': 'utf8',
+    }
+    
+    # Adicionar configurações específicas para PostgreSQL
+    if DATABASES['default']['ENGINE'] == 'django.db.backends.postgresql':
+        DATABASES['default']['OPTIONS'].update({
+            'client_encoding': 'UTF8',
+            'default_transaction_isolation': 'read committed',
+            'timezone': 'UTC',
+        })
+else:
+    # Para desenvolvimento local (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / "db.sqlite3",
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -98,6 +132,10 @@ LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
+
+# Forçar codificação UTF-8 em todo o Django
+DEFAULT_CHARSET = 'utf-8'
+FILE_CHARSET = 'utf-8'
 
 # Arquivos de Mídia (Uploads de usuário via Admin)
 # Serão servidos pelo Google Cloud Storage

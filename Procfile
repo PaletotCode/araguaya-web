@@ -1,1 +1,2 @@
-web: gunicorn araguaya_project.wsgi
+release: python -c "import os; os.environ.setdefault('LC_ALL', 'C.UTF-8'); os.environ.setdefault('LANG', 'C.UTF-8')" && python manage.py migrate --noinput && python manage.py collectstatic --noinput && python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.filter(username=os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')).exists() or User.objects.create_superuser(username=os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin'), email=os.environ.get('DJANGO_SUPERUSER_EMAIL', 'admin@araguaya.com'), password=os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin123'))" 2>/dev/null || echo "Superuser já existe ou erro ignorado"
+web: gunicorn araguaya_project.wsgi --log-file -
