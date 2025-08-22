@@ -13,7 +13,20 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
 # Hosts permitidos são lidos de uma variável de ambiente (ex: "meusite.up.railway.app,localhost")
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',')
+# Lógica robusta para ALLOWED_HOSTS que se adapta ao Railway e ao desenvolvimento local
+ALLOWED_HOSTS = []
+
+# Adiciona o domínio público do Railway automaticamente, se existir
+if RAILWAY_STATIC_URL := os.getenv('RAILWAY_STATIC_URL'):
+    ALLOWED_HOSTS.append(RAILWAY_STATIC_URL)
+
+# Permite adicionar outros domínios (como seu domínio personalizado no futuro)
+if MANUAL_HOSTS := os.getenv('ALLOWED_HOSTS'):
+    ALLOWED_HOSTS.extend(MANUAL_HOSTS.split(','))
+
+# Permite acesso local se o DEBUG estiver ativado
+if DEBUG:
+    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1'])
 # Para produção, o Railway injeta o CSRF_TRUSTED_ORIGINS, mas podemos adicionar manualmente se necessário
 # Lógica robusta para CSRF_TRUSTED_ORIGINS
 csrf_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS')
