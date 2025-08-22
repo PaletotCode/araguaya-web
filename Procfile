@@ -1,0 +1,1 @@
+web: gunicorn araguaya_project.wsgi

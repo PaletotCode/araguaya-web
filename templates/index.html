@@ -1,0 +1,931 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Araguaya Sementes - Qualidade que dá lucro</title>
+
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script> 
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa; 
+            color: #333;
+        }
+
+        .hero-section {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        .spinner-dark {
+             border: 3px solid rgba(0,0,0,.1);
+             border-top-color: #2c5b3c;
+        }
+
+        .fade-in-up {
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+        
+        header {
+            transition: background-color 0.4s ease, box-shadow 0.4s ease;
+        }
+        
+        .header-scrolled {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .header-scrolled .nav-link { color: #374151; }
+        .header-scrolled .header-logo-text { color: #2c5b3c; }
+        .header-scrolled .mobile-menu-icon { color: #2c5b3c; }
+
+
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+        
+        .faq-question {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease;
+            padding: 0 1.5rem;
+        }
+        
+        .faq-item.active .faq-answer {
+            max-height: 300px;
+            padding: 1.5rem 1.5rem;
+        }
+        
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+        
+        .faq-icon {
+            transition: transform 0.3s ease;
+        }
+        
+        #modal-seed-specs strong {
+            display: block;
+        }
+    </style> 
+
+    <script>
+        
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-green': '#2c5b3c',
+                        'brand-green-light': '#4a7c59',
+                        'brand-green-dark': '#1e3c28',
+                        'brand-gold': '#d4af37',
+                        'brand-light-gray': '#f8f9fa',
+                        'brand-dark-gray': '#333333',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.2); /* Fundo branco com alta transparência */
+        border-radius: 16px; /* Bordas mais arredondadas */
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); /* Sombra suave para profundidade */
+        backdrop-filter: blur(5px); /* O EFEITO DE VIDRO DESFOCADO */
+        -webkit-backdrop-filter: blur(5px); /* Compatibilidade com Safari */
+        border: 1px solid rgba(255, 255, 255, 0.3); /* Borda sutil que simula o vidro */
+    }
+    .glass-section-bg {
+        background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), {% if config.imagem_fundo_dicas %}url('{{ config.imagem_fundo_dicas.url }}'){% endif %};
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed; /* Efeito parallax! */
+    }
+    </style>
+</head>
+<body class="bg-brand-light-gray text-brand-dark-gray">
+
+    
+    <header id="main-header" class="fixed top-0 left-0 right-0 z-50">
+        <div class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-8">
+                 <a href="#inicio" class="flex items-center space-x-2">
+                    {% if config.logo_principal %}
+                    <img id="header-logo" src="{{ config.logo_principal.url }}" 
+                        data-logo-principal="{{ config.logo_principal.url }}" 
+                        data-logo-secundario="{% if config.logo_secundario %}{{ config.logo_secundario.url }}{% endif %}" 
+                        alt="Araguaya Logo Icon" class="h-10 transition-all duration-300">
+                    {% endif %}
+                </a>
+                <nav class="hidden md:flex space-x-6 items-center">
+                    {% for item_nav in itens_navegacao %}
+                    <a href="{{ item_nav.link }}" class="text-white font-medium hover:text-brand-gold transition nav-link">{{ item_nav.texto }}</a>
+                    {% endfor %}
+                </nav>
+            </div>
+            
+            <div class="hidden md:flex items-center space-x-4">
+                <button id="open-quote-modal-btn-header" class="bg-brand-gold text-white font-bold py-2 px-5 rounded-full hover:bg-yellow-600 transition">Cotação</button>
+                <a href="#contato" class="bg-white/20 text-white font-bold py-2 px-5 rounded-full hover:bg-white/30 transition nav-link">Contato</a>
+            </div>
+
+            <button id="mobile-menu-button" class="md:hidden text-white mobile-menu-icon">
+                <i data-lucide="menu" class="h-7 w-7"></i>
+            </button>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden bg-white/95 backdrop-blur-lg px-6 pb-4">
+            <a href="#inicio" class="block py-2 text-brand-dark-gray hover:text-brand-green">Início</a>
+            <a href="#quemsomos" class="block py-2 text-brand-dark-gray hover:text-brand-green">Sobre Nós</a>
+            <a href="#produtos" class="block py-2 text-brand-dark-gray hover:text-brand-green">Sementes</a>
+            <a href="#contato" class="block py-2 text-brand-dark-gray hover:text-brand-green">Contato</a>
+            <a href="#" class="block py-2 text-brand-dark-gray hover:text-brand-green">Login</a>
+            <button id="open-quote-modal-btn-mobile" class="mt-2 w-full bg-brand-gold text-white font-bold py-2 px-5 rounded-full hover:bg-yellow-600 transition">Cotação</button>
+        </div>
+    </header>
+
+    <main>
+        
+   <section class="hero-slideshow">
+    {% for slide in slides %}
+        <div class="slide" style="background-image: url('{{ slide.imagem.url }}'); animation-delay: {{ slide.animation_delay }}s;"></div>
+    {% endfor %}
+
+    <div class="relative z-10 h-full flex flex-col items-center justify-center text-white text-center px-6">
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6">{{ textos.hero_titulo }}</h1>
+        <p class="text-lg md:text-xl max-w-3xl">{{ textos.hero_subtitulo }}</p>
+        <a href="#produtos" class="mt-8 bg-brand-gold text-white font-bold py-3 px-8 rounded-full hover:bg-yellow-600 transition">Ver Sementes</a>
+    </div>
+</section>
+
+<style>
+.hero-slideshow {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  /* A duração total da animação (Ex: 4s por slide * 2 slides = 8s) */
+  animation: smootherFade 8s infinite; 
+}
+
+@keyframes smootherFade {
+  0%   { opacity: 0; }
+  15%  { opacity: 1; } /* Fade-in mais suave (dura 15% do ciclo) */
+  50%  { opacity: 1; } /* Permanece visível */
+  65%  { opacity: 0; } /* Fade-out mais suave (dura 15% do ciclo) */
+  100% { opacity: 0; }
+}
+</style>
+
+        </section>
+
+        
+        <section class="bg-brand-green-dark py-20 text-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-extrabold">Nós somos a Araguaya</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 text-center">
+                    {% for d in diferenciais %}
+                    <div class="flex flex-col items-center animate-on-scroll">
+                        <div class="border-2 border-brand-gold p-6 rounded-full mb-4">
+                            <i data-lucide="{{ d.icone }}" class="h-12 w-12 text-brand-gold"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">{{ d.titulo }}</h3>
+                        <p class="text-gray-300">{{ d.descricao }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        
+        
+        <section id="produtos" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-on-scroll">
+                    <h2 class="text-4xl font-extrabold text-brand-dark-gray mb-6">{{ textos.dicas_titulo|default:"Qualidade Garantida" }}</h2>
+                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">{{ textos.portfolio_subtitulo|default:"Soluções genéticas de ponta para cada desafio do seu campo." }}</p>
+                </div>
+                <div id="product-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+                    {% for semente in sementes %}
+                    <div data-seed-id="{{ semente.id }}" class="bg-white rounded-lg overflow-hidden transition duration-300 ease-in-out product-card group border hover:shadow-xl hover:-translate-y-2 cursor-pointer">
+                        <div class="relative overflow-hidden">
+                            <img src="{{ semente.imagem.url }}" alt="{{ semente.nome }}" class="w-full h-48 object-cover product-image transition-transform duration-300">
+                            <span class="absolute top-2 right-2 bg-brand-gold text-white text-xs font-bold px-2 py-1 rounded-full">{{ semente.tipo }}</span>
+                        </div>
+                        <div class="p-4 text-center">
+                            <h3 class="font-bold text-md text-brand-dark-gray mb-2 h-12 flex items-center justify-center">{{ semente.nome }}</h3>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                 <div class="text-center mt-16">
+                    <button id="open-seed-selector-btn" class="bg-brand-gold text-white font-bold py-4 px-10 rounded-full text-lg shadow-xl hover:bg-yellow-600 transform hover:scale-105 transition duration-300 ease-in-out">
+                        Encontrar Semente Ideal
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="comparativo" class="py-20 bg-brand-light-gray">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-on-scroll">
+                    <h2 class="text-4xl font-extrabold text-brand-dark-gray">{{ textos.comparativo_titulo|default:"Compare Nossas Soluções" }}</h2>
+                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">{{ textos.comparativo_subtitulo|default:"Analise as características e escolha a melhor semente para sua necessidade." }}</p>
+                </div>
+                <div class="overflow-x-auto bg-white rounded-lg shadow-lg animate-on-scroll">
+                    <table class="w-full text-sm text-left text-gray-500">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 min-w-[200px]">Característica</th>
+                                {% for semente in sementes_comparacao %}
+                                <th scope="col" class="px-6 py-3 text-center">{{ semente.nome }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                           <tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Tolerância à Seca</th>
+                                {% for semente in sementes_comparacao %}
+                                <td class="px-6 py-4 text-center">{{ semente.tolerancia_seca|default:"N/A" }}</td>
+                                {% endfor %}
+                           </tr>
+                           <tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Proteína Bruta</th>
+                                {% for semente in sementes_comparacao %}
+                                <td class="px-6 py-4 text-center">{{ semente.proteina_bruta|default:"N/A" }}</td>
+                                {% endfor %}
+                           </tr>
+                           <tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Produção Matéria Seca</th>
+                                {% for semente in sementes_comparacao %}
+                                <td class="px-6 py-4 text-center">{{ semente.producao_materia_seca|default:"N/A" }}</td>
+                                {% endfor %}
+                           </tr>
+                           <tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Uso Principal</th>
+                                {% for semente in sementes_comparacao %}
+                                <td class="px-6 py-4 text-center">{{ semente.utilizacao|default:"N/A" }}</td>
+                                {% endfor %}
+                           </tr>
+                           <tr class="bg-white border-b"><th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Resistência a Pragas</th>
+                                {% for semente in sementes_comparacao %}
+                                <td class="px-6 py-4 text-center">{{ semente.pragas|default:"N/A" }}</td>
+                                {% endfor %}
+                           </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="quemsomos" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="grid md:grid-cols-2 gap-16 items-center">
+                    <div class="animate-on-scroll relative w-full h-96 overflow-hidden rounded-lg shadow-2xl">
+                        {% for img in config.imagens_sobre_nos.all %}
+                        <div class="sobre-nos-slide absolute inset-0 transition-opacity duration-1000 ease-in-out" 
+                             style="background-image: url('{{ img.imagem.url }}'); background-size: cover; background-position: center; opacity: {% if forloop.first %}1{% else %}0{% endif %};">
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="animate-on-scroll">
+                        <h2 class="text-4xl font-extrabold text-brand-dark-gray mb-6">{{ config.sobre_nos_titulo }}</h2>
+                        <div class="space-y-4 text-gray-700 text-lg">
+                            <p>{{ config.sobre_nos_p1 }}</p>
+                            <p>{{ config.sobre_nos_p2 }}</p>
+                            <p class="font-semibold text-brand-green">{{ config.sobre_nos_p3 }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-20 grid grid-cols-1 md:grid-cols-3 gap-10 text-center animate-on-scroll">
+                    <div class="bg-brand-light-gray p-8 rounded-lg">
+                        <i data-lucide="gem" class="h-12 w-12 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-brand-dark-gray mb-2">Missão</h3>
+                        <p class="text-gray-600">Ser referência em soluções para o agronegócio que gerem maior lucratividade e qualidade a clientes e parceiros.</p>
+                    </div>
+                    <div class="bg-brand-light-gray p-8 rounded-lg">
+                        <i data-lucide="eye" class="h-12 w-12 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-brand-dark-gray mb-2">Visão</h3>
+                        <p class="text-gray-600">Ser reconhecida por clientes e parceiros como a melhor solução para um plantio eficiente.</p>
+                    </div>
+                    <div class="bg-brand-light-gray p-8 rounded-lg">
+                        <i data-lucide="heart-handshake" class="h-12 w-12 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-brand-dark-gray mb-2">Valores</h3>
+                        <p class="text-gray-600">Fé, Honestidade, Ética, Qualidade e Transparência.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="dicas" class="py-20 glass-section-bg">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-on-scroll">
+                    <h2 class="text-4xl font-extrabold text-white">{{ textos.dicas_titulo|default:"Qualidade Garantida" }}</h2>
+                    <p class="text-xl text-gray-200 mt-4 max-w-3xl mx-auto">{{ textos.dicas_subtitulo|default:"Conheça as nossas dicas de Plantio, Preparo do Solo e Armazenamento." }}</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="glass-card p-8 rounded-lg text-center animate-on-scroll hover:shadow-xl hover:-translate-y-2 transition-all duration-300">
+                        <i data-lucide="sprout" class="h-16 w-16 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-white mb-3">Dicas de Plantio</h3>
+                        <p class="text-gray-200 mb-4">Aprenda as melhores práticas para garantir uma germinação uniforme e um pasto bem estabelecido desde o início.</p>
+                        <a href="#" class="font-bold text-white hover:text-brand-gold transition">Saiba Mais <i data-lucide="arrow-right" class="inline w-4 h-4"></i></a>
+                    </div>
+                    <div class="glass-card p-8 rounded-lg text-center animate-on-scroll hover:shadow-xl hover:-translate-y-2 transition-all duration-300" style="animation-delay: 0.1s;">
+                        <i data-lucide="shovel" class="h-16 w-16 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-white mb-3">Preparo do Solo</h3>
+                        <p class="text-gray-200 mb-4">Um bom preparo do solo é fundamental. Veja como a análise, calagem e adubação corretas fazem a diferença.</p>
+                        <a href="#" class="font-bold text-white hover:text-brand-gold transition">Saiba Mais <i data-lucide="arrow-right" class="inline w-4 h-4"></i></a>
+                    </div>
+                    <div class="glass-card p-8 rounded-lg text-center animate-on-scroll hover:shadow-xl hover:-translate-y-2 transition-all duration-300" style="animation-delay: 0.2s;">
+                        <i data-lucide="archive" class="h-16 w-16 text-brand-gold mx-auto mb-4"></i>
+                        <h3 class="text-2xl font-bold text-white mb-3">Armazenamento</h3>
+                        <p class="text-gray-200 mb-4">Preserve o potencial germinativo das suas sementes com nossas dicas de armazenamento em local correto.</p>
+                        <a href="#" class="font-bold text-white hover:text-brand-gold transition">Saiba Mais <i data-lucide="arrow-right" class="inline w-4 h-4"></i></a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="faq" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-16 animate-on-scroll">
+                    <h2 class="text-4xl font-extrabold text-brand-dark-gray mb-6">Qualidade Garantida</h2>
+                    <p class="text-lg text-gray-600 mt-4 max-w-3xl mx-auto">{{ textos.faq_subtitulo|default:"Tire suas dúvidas sobre nossas sementes e serviços." }}</p>
+                </div>
+                <div class="max-w-3xl mx-auto space-y-4 animate-on-scroll" id="faq-container">
+                    {% for faq in faqs %}
+                    <div class="faq-item bg-white border border-gray-200 rounded-lg">
+                        <div class="faq-question p-6 flex justify-between items-center">
+                            <h3 class="font-semibold text-lg text-brand-dark-gray">{{ faq.pergunta }}</h3>
+                            <i data-lucide="plus" class="faq-icon text-brand-green"></i>
+                        </div>
+                        <div class="faq-answer text-gray-600">
+                            <p>{{ faq.resposta }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+
+        
+        <section id="contato" class="py-20 bg-brand-green-dark text-white">
+            <div class="container mx-auto px-6">
+                <div class="text-center mb-12 animate-on-scroll">
+                    <h2 class="text-4xl font-extrabold">Onde Comprar</h2>
+                    <p class="text-lg text-gray-300 mt-4 max-w-3xl mx-auto">Fale com um de nossos representantes.</p>
+                </div>
+                 <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="animate-on-scroll">
+                        <div class="bg-white/10 p-8 rounded-lg text-left">
+                            <h3 class="text-2xl font-bold mb-6">Nossos Canais</h3>
+                            <div class="space-y-4 text-gray-200">
+                                <p><i data-lucide="map-pin" class="w-5 h-5 mr-3 inline text-brand-gold"></i><strong>Rodovia:</strong> {{ config.endereco_rodovia }}</p>
+                                <p><i data-lucide="building" class="w-5 h-5 mr-3 inline text-brand-gold"></i><strong>Escritório:</strong> {{ config.endereco_escritorio }}</p>
+                                <p><i data-lucide="phone" class="w-5 h-5 mr-3 inline text-brand-gold"></i>{{ config.telefone_fixo }}</p>
+                                <p><i data-lucide="smartphone" class="w-5 h-5 mr-3 inline text-brand-gold"></i>{{ config.telefone_celular }}</p>
+                                <p><i data-lucide="mail" class="w-5 h-5 mr-3 inline text-brand-gold"></i>{{ config.email_contato }}</p>
+                            </div>
+                            <button id="open-quote-modal-btn-footer" class="mt-8 inline-flex items-center bg-brand-gold text-white font-bold py-3 px-8 rounded-full shadow-lg hover:bg-yellow-600 transition transform hover:scale-105">
+                                Solicitar Cotação
+                            </button>
+                        </div>
+                    </div>
+                     <div class="animate-on-scroll h-full">
+                        <div class="map-container">
+  <iframe 
+    src="{{ config.mapa_url }}" 
+    width="100%" 
+    height="100%" 
+    style="border:0; min-height: 400px;" 
+    allowfullscreen="" 
+    loading="lazy" 
+    referrerpolicy="no-referrer-when-downgrade" 
+    class="rounded-lg shadow-lg filter grayscale-[70%]">
+  </iframe>
+</div>
+
+            </div>
+        </section>
+    </main>
+
+    
+    <footer class="bg-brand-green text-white py-10">
+        <div class="container mx-auto px-6 text-center">
+            <p class="font-extrabold text-2xl">ARAGUAYA SEMENTES</p>
+            <p class="text-gray-300 mt-2">&copy; 2024 Araguaya Sementes de Pastagem. Todos os direitos reservados.</p>
+            <div class="flex justify-center space-x-6 mt-4">
+                <a href="#" class="text-gray-300 hover:text-white"><i data-lucide="facebook"></i></a>
+                <a href="#" class="text-gray-300 hover:text-white"><i data-lucide="instagram"></i></a>
+                <a href="#" class="text-gray-300 hover:text-white"><i data-lucide="linkedin"></i></a>
+            </div>
+        </div>
+    </footer>
+    
+    
+    <a href="{% if config.telefone_celular %}https://wa.me/55{{ config.telefone_celular|slugify }}{% endif %}" target="_blank" class="fixed bottom-6 right-6 bg-[#25D366] text-white p-4 rounded-full shadow-lg hover:bg-[#128C7E] transition transform hover:scale-110 z-40">
+        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+    </a>
+
+    
+    <div id="seed-details-modal" class="fixed inset-0 bg-black/70 z-[60] hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto relative animate-on-scroll">
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-500 hover:text-black">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <div class="p-8 md:p-12">
+                <div class="grid md:grid-cols-2 gap-8 items-start">
+                    <div>
+                        <img id="modal-seed-image" src="https://placehold.co/600x400/2c5b3c/ffffff?text=Semente" alt="Semente" class="w-full rounded-lg shadow-lg mb-4">
+                        <h2 id="modal-seed-name" class="text-3xl md:text-4xl font-extrabold text-brand-green mb-2">Nome da Semente</h2>
+                        <p id="modal-seed-scientific" class="text-lg text-gray-500 italic mb-4">Nome científico</p>
+                        <p id="modal-seed-description" class="text-gray-700"></p>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-brand-dark-gray mb-4 border-b-2 border-brand-gold pb-2">Especificações Técnicas</h3>
+                        <div id="modal-seed-specs" class="space-y-4 text-gray-600">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="seed-selector-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative animate-on-scroll">
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-500 hover:text-black">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <div class="p-8">
+                <h2 class="text-3xl font-bold text-brand-green mb-2">Encontre a Semente Ideal</h2>
+                <p class="text-gray-600 mb-6">Informe as condições da sua propriedade para receber nossas recomendações.</p>
+                
+                <div class="grid md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label for="clima" class="block text-sm font-medium text-gray-700">Clima da Região</label>
+                        <select id="clima" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green">
+                            <option value="todos">Todos</option>
+                            <option value="tropical">Tropical</option>
+                            <option value="subtropical">Subtropical</option>
+                            <option value="semiarido">Semiárido</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="solo" class="block text-sm font-medium text-gray-700">Tipo de Solo</label>
+                        <select id="solo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green">
+                            <option value="todos">Todos</option>
+                            <option value="argiloso">Argiloso</option>
+                            <option value="arenoso">Arenoso</option>
+                            <option value="misto">Misto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="objetivo" class="block text-sm font-medium text-gray-700">Objetivo do Plantio</label>
+                        <select id="objetivo" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green">
+                            <option value="todos">Todos</option>
+                            <option value="pastoreio">Pastoreio</option>
+                            <option value="feno">Feno</option>
+                            <option value="silagem">Silagem</option>
+                        </select>
+                    </div>
+                </div>
+                <button id="find-seeds-btn" class="w-full bg-brand-green text-white font-bold py-3 px-6 rounded-lg hover:bg-green-800 transition">Buscar Sementes</button>
+
+                <div id="seed-results" class="mt-8"></div>
+                
+                <div id="gemini-plan-container" class="mt-6 hidden">
+                    <h3 class="text-2xl font-bold text-brand-dark-gray mb-4 flex items-center">
+                        <i data-lucide="sparkles" class="text-brand-gold mr-2"></i>
+                        Assistente de Plantio Inteligente
+                    </h3>
+                    <div id="gemini-plan-result" class="bg-gray-50 p-6 rounded-lg border border-gray-200"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="quote-modal" class="fixed inset-0 bg-black/70 z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg relative animate-on-scroll">
+            <button class="close-modal-btn absolute top-4 right-4 text-gray-500 hover:text-black">
+                <i data-lucide="x" class="w-8 h-8"></i>
+            </button>
+            <div class="p-8">
+                <h2 class="text-3xl font-bold text-brand-green mb-2">Solicitar Cotação</h2>
+                <p class="text-gray-600 mb-6">Preencha os campos abaixo e nossa equipe entrará em contato rapidamente.</p>
+                <form id="quote-form" class="space-y-4">
+                    <div>
+                        <label for="quote-name" class="block text-sm font-medium text-gray-700">Seu Nome</label>
+                        <input type="text" id="quote-name" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green" required>
+                    </div>
+                    <div>
+                        <label for="quote-contact" class="block text-sm font-medium text-gray-700">Email ou Telefone</label>
+                        <input type="text" id="quote-contact" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green" required>
+                    </div>
+                    <div>
+                        <label for="quote-product" class="block text-sm font-medium text-gray-700">Produto de Interesse</label>
+                        <select id="quote-product" class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green">
+                            <option>Sementes de Pastagem</option>
+                            <option>Sementes de Milho</option>
+                            <option>Sementes de Soja</option>
+                            <option>Fertilizantes</option>
+                            <option>Maquinário Agrícola</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="quote-message" class="block text-sm font-medium text-gray-700">Mensagem (quantidade, detalhes)</label>
+                        <textarea id="quote-message" rows="4" class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-brand-green focus:border-brand-green"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-brand-gold text-white font-bold py-3 px-6 rounded-lg hover:bg-yellow-600 transition">Enviar Solicitação</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+
+        // INÍCIO DO CÓDIGO DO SMOOTH SCROLL
+        const lenis = new Lenis()
+
+        function raf(time) {
+          lenis.raf(time)
+          requestAnimationFrame(raf)
+        }
+
+        requestAnimationFrame(raf)
+        // FIM DO CÓDIGO DO SMOOTH SCROLL
+
+        // Lógica para o slideshow da seção "Sobre Nós"
+
+        // Lógica para o slideshow da seção "Sobre Nós"
+        const sobreNosSlides = document.querySelectorAll('.sobre-nos-slide');
+        if (sobreNosSlides.length > 1) {
+            let currentSlide = 0;
+            setInterval(() => {
+                sobreNosSlides[currentSlide].style.opacity = 0;
+                currentSlide = (currentSlide + 1) % sobreNosSlides.length;
+                sobreNosSlides[currentSlide].style.opacity = 1;
+            }, 4000); // Muda a imagem a cada 4 segundos
+        }
+        
+        const mainHeader = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                mainHeader.classList.add('header-scrolled');
+            } else {
+                mainHeader.classList.remove('header-scrolled');
+            }
+        });
+        
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        
+        const modals = document.querySelectorAll('.fixed.inset-0');
+        const openSeedSelectorBtn = document.getElementById('open-seed-selector-btn');
+        const openQuoteModalBtns = [
+            document.getElementById('open-quote-modal-btn-header'),
+            document.getElementById('open-quote-modal-btn-footer'),
+            document.getElementById('open-quote-modal-btn-mobile')
+        ];
+        
+        const seedSelectorModal = document.getElementById('seed-selector-modal');
+        const quoteModal = document.getElementById('quote-modal');
+        const seedDetailsModal = document.getElementById('seed-details-modal');
+
+        function openModal(modal) {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = 'auto';
+        }
+
+        openSeedSelectorBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openModal(seedSelectorModal);
+        });
+
+        openQuoteModalBtns.forEach(btn => {
+            if(btn) btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                openModal(quoteModal);
+            });
+        });
+
+        modals.forEach(modal => {
+            const closeButtons = modal.querySelectorAll('.close-modal-btn');
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => closeModal(modal));
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal(modal);
+                }
+            });
+        });
+
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                faqItems.forEach(i => i.classList.remove('active'));
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        
+        // SUBSTITUA PELO NOVO BLOCO DE CÓDIGO
+        const productList = document.getElementById('product-list');
+        if (productList) {
+            productList.addEventListener('click', async function(event) {
+                const card = event.target.closest('.product-card');
+                if (!card) return;
+
+                const seedId = card.dataset.seedId;
+                if (!seedId) return;
+
+                try {
+                    // 1. Faz a chamada para a nossa nova API
+                    const response = await fetch(`/api/semente/${seedId}/`);
+                    if (!response.ok) {
+                        throw new Error('Semente não encontrada.');
+                    }
+                    const data = await response.json();
+
+                    // 2. Popula o modal com os dados recebidos da API
+                    document.getElementById('modal-seed-image').src = data.imagem_url;
+                    document.getElementById('modal-seed-name').textContent = data.nome;
+                    document.getElementById('modal-seed-scientific').textContent = data.nome_cientifico;
+                    document.getElementById('modal-seed-description').textContent = data.paragrafo_descricao;
+
+                    const specsContainer = document.getElementById('modal-seed-specs');
+                    specsContainer.innerHTML = `
+                        <div><strong class="text-brand-dark-gray font-semibold">Origem:</strong> ${data.origem || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Forma de Crescimento:</strong> ${data.forma_crescimento || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Altura Média:</strong> ${data.altura || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Utilização:</strong> ${data.utilizacao || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Digestibilidade:</strong> ${data.digestibilidade || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Palatabilidade:</strong> ${data.palatabilidade || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Tolerância a Seca:</strong> ${data.tolerancia_seca || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Tolerância a Frio:</strong> ${data.tolerancia_frio || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Teor Proteíco:</strong> ${data.proteina_bruta || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Produção de Forragem:</strong> ${data.producao_materia_seca || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Consorciação:</strong> ${data.consorciacao || 'N/A'}</div>
+                        <div><strong class="text-brand-dark-gray font-semibold">Pragas:</strong> ${data.pragas || 'N/A'}</div>
+                        <div class="col-span-1 md:col-span-2"><strong class="text-brand-dark-gray font-semibold">Adubação de Formação:</strong> ${data.adubacao_formacao || 'N/A'}</div>
+                    `;
+                    
+                    // 3. Abre o modal
+                    openModal(seedDetailsModal);
+
+                } catch (error) {
+                    console.error('Erro ao buscar detalhes da semente:', error);
+                }
+            });
+        }
+        
+        const findSeedsBtn = document.getElementById('find-seeds-btn');
+        const seedResultsContainer = document.getElementById('seed-results');
+        const geminiPlanContainer = document.getElementById('gemini-plan-container');
+        const geminiPlanResult = document.getElementById('gemini-plan-result');
+
+        findSeedsBtn.addEventListener('click', () => {
+            const clima = document.getElementById('clima').value;
+            const solo = document.getElementById('solo').value;
+            const objetivo = document.getElementById('objetivo').value;
+
+            const results = seedData.filter(seed => {
+                const climaMatch = clima === 'todos' || (seed.climate && seed.climate.includes(clima));
+                const soloMatch = solo === 'todos' || (seed.soil && seed.soil.includes(solo));
+                const objetivoMatch = objetivo === 'todos' || (seed.objective && seed.objective.includes(objetivo));
+                return climaMatch && soloMatch && objetivoMatch;
+            });
+
+            seedResultsContainer.innerHTML = '';
+            geminiPlanContainer.classList.add('hidden');
+
+            if (results.length > 0) {
+                let resultsHTML = '<h3 class="text-2xl font-bold text-brand-dark-gray mb-4">Sementes Recomendadas:</h3>';
+                results.forEach(seed => {
+                    resultsHTML += `
+                        <div class="border rounded-lg p-4 mb-4">
+                            <div class="flex items-center gap-4">
+                                <img src="${seed.image}" alt="${seed.name}" class="w-24 h-24 object-cover rounded-md">
+                                <div>
+                                    <h4 class="font-bold text-lg text-brand-green">${seed.name}</h4>
+                                    <p class="text-sm text-gray-600"><strong>Utilização:</strong> ${seed.utilizacao}</p>
+                                </div>
+                            </div>
+                            <button class="generate-plan-btn mt-4 w-full bg-brand-gold text-white font-semibold py-2 rounded-lg hover:bg-yellow-600 transition flex items-center justify-center gap-2" data-seed-name="${seed.name}">
+                                ✨ Gerar Plano de Plantio
+                            </button>
+                        </div>
+                    `;
+                });
+                seedResultsContainer.innerHTML = resultsHTML;
+            } else {
+                seedResultsContainer.innerHTML = '<p class="text-center text-gray-600 p-8 bg-gray-100 rounded-lg">Nenhuma semente encontrada com os critérios selecionados.</p>';
+            }
+        });
+
+        
+        seedResultsContainer.addEventListener('click', function(event) {
+            const targetButton = event.target.closest('.generate-plan-btn');
+            if (targetButton) {
+                const seedName = targetButton.dataset.seedName;
+                const clima = document.getElementById('clima').value;
+                const solo = document.getElementById('solo').value;
+                const objetivo = document.getElementById('objetivo').value;
+                
+                generatePlantingPlan(seedName, clima, solo, objetivo, targetButton);
+            }
+        });
+
+        async function generatePlantingPlan(seedName, clima, solo, objetivo, button) {
+            geminiPlanContainer.classList.remove('hidden');
+            geminiPlanResult.innerHTML = '<div class="flex justify-center items-center"><div class="spinner-dark"></div><p class="ml-4 text-gray-600">Gerando plano personalizado...</p></div>';
+            button.disabled = true;
+            button.innerHTML = '<div class="spinner"></div> Processando...';
+
+            const prompt = `Você é um agrônomo especialista da empresa Araguaya Sementes. Um produtor rural no Brasil, com as seguintes condições: clima '${clima}', tipo de solo '${solo}', e objetivo de plantio '${objetivo}', selecionou a semente '${seedName}'. Crie um plano de plantio simplificado e prático em 3 etapas claras. Use uma linguagem direta e útil para o produtor. Formate a resposta em HTML com um h5 para cada etapa e parágrafos para o texto. Exemplo: <h5>1. Preparo do Solo</h5><p>Texto da dica.</p>.`;
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+            const payload = { contents: chatHistory };
+
+            try {
+                let response;
+                let retries = 3;
+                let delay = 1000;
+                for (let i = 0; i < retries; i++) {
+                    response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) break;
+                    if (response.status === 429 || response.status >= 500) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        delay *= 2;
+                    } else {
+                        break;
+                    }
+                }
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    geminiPlanResult.innerHTML = text;
+                } else {
+                    throw new Error("Resposta da API inválida ou vazia.");
+                }
+
+            } catch (error) {
+                console.error("Erro ao chamar a API Gemini:", error);
+                geminiPlanResult.innerHTML = '<p class="text-red-600 text-center">Desculpe, não foi possível gerar o plano de plantio. Tente novamente mais tarde.</p>';
+            } finally {
+                button.disabled = false;
+                button.innerHTML = '✨ Gerar Plano de Plantio';
+            }
+        }
+
+
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in-up');
+                    entry.target.style.opacity = 1;
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            el.style.opacity = 0;
+            observer.observe(el);
+        });
+
+        const quoteForm = document.querySelector('#quote-modal form');
+        quoteForm.addEventListener('submit', async function(event) {
+            event.preventDefault(); // Impede o recarregamento da página
+
+            const submitButton = quoteForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<div class="spinner"></div> Enviando...';
+
+            const formData = {
+                nome: document.getElementById('quote-name').value,
+                contato: document.getElementById('quote-contact').value,
+                produto: document.getElementById('quote-product').value,
+                mensagem: document.getElementById('quote-message').value,
+            };
+
+            try {
+                const response = await fetch('/api/solicitar-cotacao/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert('Sucesso! ' + result.mensagem);
+                    quoteForm.reset(); // Limpa o formulário
+                    closeModal(document.getElementById('quote-modal'));
+                } else {
+                    throw new Error(result.mensagem || 'Ocorreu um erro.');
+                }
+
+            } catch (error) {
+                alert('Erro: ' + error.message);
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+
+        lucide.createIcons();
+    });
+    </script>
+</body>
+</html>
