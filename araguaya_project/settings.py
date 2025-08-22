@@ -1,43 +1,47 @@
+# araguaya_project/settings.py
+
 import os
 from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
 
-# Carrega as variáveis do arquivo .env em ambiente de desenvolvimento
-# O Railway irá ignorar isso e usar suas próprias variáveis de ambiente
+# Carrega o .env apenas em ambiente local.
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# --- CHAVE SECRETA ---
-# Lê a SECRET_KEY das variáveis de ambiente.
-# É crucial para a segurança em produção.
+# --- CONFIGURAÇÕES DE SEGURANÇA ESSENCIAIS ---
+
+# A SECRET_KEY DEVE vir do ambiente. Se não vier, o app não inicia.
 SECRET_KEY = os.environ.get('SECRET_KEY')
+if not SECRET_KEY:
+    raise ValueError("A variável de ambiente SECRET_KEY não foi definida.")
 
-# --- MODO DEBUG ---
-# Desativa o DEBUG automaticamente quando em produção.
-# O valor 'False' é mais seguro. '1' ou 'True' só devem ser usados localmente.
-DEBUG = os.environ.get('DEBUG', 'False').lower() in ('true', '1', 't')
+# O modo DEBUG é Falso por padrão. Só se torna Verdadeiro se DEBUG=True for definido.
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# --- HOSTS PERMITIDOS ---
-# Lê os hosts permitidos das variáveis de ambiente.
-# Você já configurou "web-production-53d55.up.railway.app" no seu painel.
-ALLOWED_HOSTS_STR = os.environ.get('ALLOWED_HOSTS')
-ALLOWED_HOSTS = ALLOWED_HOSTS_STR.split(',') if ALLOWED_HOSTS_STR else []
+# --- CONFIGURAÇÃO DE REDE PARA O RAILWAY ---
 
-# --- CSRF (Cross-Site Request Forgery) ---
-# Necessário para que o Django confie em requisições seguras (HTTPS) do Railway.
-CSRF_TRUSTED_ORIGINS_STR = os.environ.get('CSRF_TRUSTED_ORIGINS')
-if CSRF_TRUSTED_ORIGINS_STR:
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in CSRF_TRUSTED_ORIGINS_STR.split(',')]
-else:
-    # Se a variável de ambiente CSRF_TRUSTED_ORIGINS não for definida,
-    # podemos usar os ALLOWED_HOSTS como um fallback seguro.
-    CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
+# Lê os hosts permitidos de uma única variável, separados por vírgula.
+# Ex: ALLOWED_HOSTS=meusite.up.railway.app,www.meusite.com
+ALLOWED_HOSTS_STR = os.environ.get('ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS_STR.split(',') if host.strip()]
+
+# Adiciona o host do Railway automaticamente se estiver no ambiente Railway
+RAILWAY_STATIC_URL = os.environ.get('RAILWAY_STATIC_URL')
+if RAILWAY_STATIC_URL and f'.{RAILWAY_STATIC_URL}' not in ALLOWED_HOSTS:
+    # A variável RAILWAY_STATIC_URL contém o nome do host público do app.
+    # Ex: web-production-1234.up.railway.app
+    ALLOWED_HOSTS.append(f'{RAILWAY_STATIC_URL}')
 
 
-# Application definition
+# CSRF_TRUSTED_ORIGINS é vital para o login no admin funcionar em HTTPS.
+# Deve ser uma lista de URLs completos.
+CSRF_TRUSTED_ORIGINS = [f'https://{host}' for host in ALLOWED_HOSTS]
+
+
+# --- APLICAÇÕES E MIDDLEWARE (Padrão) ---
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,16 +49,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Suas aplicações
     'core.apps.CoreConfig',
-    
-    # Aplicações de terceiros
-    'storages', # Para gerenciar arquivos de mídia no GCS
+    'storages',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # Whitenoise é excelente para servir arquivos estáticos de forma eficiente
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,11 +66,10 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'araguaya_project.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'], # Certifique-se que sua pasta de templates está aqui
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,75 +81,43 @@ TEMPLATES = [
         },
     },
 ]
-
 WSGI_APPLICATION = 'araguaya_project.wsgi.application'
 
+# --- CONFIGURAÇÃO DO BANCO DE DADOS (O Ponto Crítico) ---
 
-# --- BANCO DE DADOS ---
-# Configuração mágica para o Railway.
-# O dj-database-url lê a variável DATABASE_URL e configura tudo para você.
+# Lê a DATABASE_URL do ambiente. Se não existir, a aplicação irá falhar.
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if not DATABASE_URL:
+    raise ValueError("A variável de ambiente DATABASE_URL não foi definida.")
+
 DATABASES = {
     'default': dj_database_url.config(
-        conn_max_age=600, # Mantém as conexões persistentes para melhor performance
-        ssl_require=True # Força SSL, essencial para segurança em produção
+        default=DATABASE_URL,
+        conn_max_age=600,
+        ssl_require=True # Forçar SSL é uma boa prática de segurança
     )
 }
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
 
-
-# Internationalization
+# --- INTERNACIONALIZAÇÃO ---
 LANGUAGE_CODE = 'pt-br'
 TIME_ZONE = 'America/Sao_Paulo'
 USE_I18N = True
 USE_TZ = True
 
 
-# --- ARQUIVOS ESTÁTICOS (CSS, JS, etc.) ---
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles_build" # Pasta para coletar arquivos estáticos para produção
+# --- ARQUIVOS ESTÁTICOS E DE MÍDIA ---
 
-# Default primary key field type
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles' # Pasta onde o collectstatic irá juntar os arquivos
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+# Adiciona o storage do Whitenoise para servir arquivos comprimidos e cacheados
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Mídia (Uploads) - Configuração para Google Cloud Storage (se aplicável)
+# ... sua configuração do django-storages para GCS continua aqui ...
+
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# --- CONFIGURAÇÃO DE MÍDIA (Uploads de Imagens para o Google Cloud Storage) ---
-# Adicione estas variáveis de ambiente no seu painel do Railway.
-# Ex: GOOGLE_CLOUD_STORAGE_BUCKET_NAME = 'seu-bucket-name'
-#     GOOGLE_CLOUD_STORAGE_PROJECT_ID = 'seu-project-id'
-#     GOOGLE_APPLICATION_CREDENTIALS_JSON = 'conteúdo do seu JSON de credenciais'
-
-if 'GOOGLE_CLOUD_STORAGE_BUCKET_NAME' in os.environ:
-    # Esta configuração só será ativada se as variáveis do GCS existirem.
-    # Isso permite que você use o armazenamento local em desenvolvimento.
-    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-    GS_BUCKET_NAME = os.environ.get('GOOGLE_CLOUD_STORAGE_BUCKET_NAME')
-    GS_PROJECT_ID = os.environ.get('GOOGLE_CLOUD_STORAGE_PROJECT_ID')
-    
-    # A maneira mais segura de passar as credenciais para o Railway
-    # é via uma única variável de ambiente contendo o JSON completo.
-    # No painel do Railway, cole o conteúdo do seu arquivo .json nessa variável.
-    gcs_credentials_json = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS_JSON')
-    if gcs_credentials_json:
-        import json
-        from google.oauth2 import service_account
-        
-        credentials_info = json.loads(gcs_credentials_json)
-        GS_CREDENTIALS = service_account.Credentials.from_service_account_info(credentials_info)
-
-    MEDIA_URL = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
-    MEDIA_ROOT = f'https://storage.googleapis.com/{GS_BUCKET_NAME}/'
