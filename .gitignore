@@ -1,0 +1,35 @@
+# Arquivo de configuração de ambiente local
+# NUNCA envie este arquivo para o repositório!
+.env
+
+# Banco de dados local
+db.sqlite3
+
+# Ambiente Virtual do Python
+.venv/
+venv/
+env/
+
+# Arquivos de Cache do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Arquivos de Mídia (Uploads de usuário)
+# Estes arquivos devem estar no GCS em produção, não no Git.
+/media/
+
+# Arquivos Estáticos coletados pelo Django
+# O Django irá gerar esta pasta em produção. Não precisamos versioná-la.
+/staticfiles/
+
+# Arquivos de IDEs e Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Arquivos do sistema operacional
+.DS_Store
+Thumbs.db
